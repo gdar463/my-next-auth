@@ -27,10 +27,18 @@ model Passkey {
   authName     String
 }
 
+model Social {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  User     User   @relation(fields: [username], references: [email])
+  username String @unique
+  githubId Int?   @unique
+}
+
 model User {
   id       String    @id @default(auto()) @map("_id") @db.ObjectId
   email    String    @unique
   password String?
   token    String?   @unique
   Passkey  Passkey[]
+  Social   Social?
 }

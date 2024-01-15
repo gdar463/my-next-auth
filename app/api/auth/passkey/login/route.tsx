@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { server } from "@passwordless-id/webauthn";
 import prisma from "@/db";
 import nextBase64 from "next-base64";
-import { Prisma } from "@prisma/client";
 
 export interface AuthenticationEncoded {
     credentialId: string;
@@ -49,9 +48,9 @@ export async function POST(request: NextRequest) {
         });
     }
     try {
-        // @ts-expect-error
         const registrationParsed = await server.verifyAuthentication(
             json,
+            // @ts-expect-error
             passkeyFromDB.credential,
             expected,
         );
@@ -73,7 +72,7 @@ export async function POST(request: NextRequest) {
             token: token,
         },
     });
-    var response = new NextResponse("User created successfully", {
+    const response = new NextResponse("User created successfully", {
         status: 200,
     });
     response.cookies.set("token", token, {

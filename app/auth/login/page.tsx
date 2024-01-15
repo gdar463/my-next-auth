@@ -3,6 +3,7 @@
 import { client } from "@passwordless-id/webauthn";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function Login() {
     const [passkeySupport, setPasskeySupport] = useState(false);
@@ -45,7 +46,7 @@ export default function Login() {
         const responseStatus = response.status;
         switch (responseStatus) {
             case 200:
-                window.location.replace("/user");
+                router.push("/user");
                 break;
             case 401:
                 alert("Credenziali Sbagliate");
@@ -83,7 +84,7 @@ export default function Login() {
         const responseStatus = response.status;
         switch (responseStatus) {
             case 200:
-                window.location.replace("/user");
+                router.push("/user");
                 break;
             case 401:
                 alert("Passkey non valida (in qualche modo)");
@@ -108,6 +109,11 @@ export default function Login() {
                 );
                 break;
         }
+    };
+
+    const githubHandler = async (event) => {
+        event.preventDefault();
+        router.push("/api/auth/social?provider=github");
     };
 
     return (
@@ -137,7 +143,7 @@ export default function Login() {
                         required
                     />
                     <input
-                        className="btn mb-1 mt-7"
+                        className="btn mb-1 mt-7 text-base"
                         type="submit"
                         value="Login"
                     />
@@ -149,11 +155,44 @@ export default function Login() {
                     </text>
                     <form className="form-control" onSubmit={webauthnHandler}>
                         <input
-                            className="btn mt-6"
+                            className="btn mt-6 text-base"
                             type="submit"
                             value="Login"
                         />
                     </form>
+                </div>
+                <div>
+                    <hr className="my-6 w-full" />
+                    <text className="text-3xl font-semibold">
+                        Or you social login
+                    </text>
+                    <div className="btn mt-6 flex flex-row justify-center">
+                        <Image
+                            src="/icons/social/google.png"
+                            alt="Google Logo"
+                            width={30}
+                            height={30}
+                            className="justify-self-start"
+                        />
+                        <text className="ml-4 place-self-center justify-self-center align-middle text-base">
+                            Sign in with Google
+                        </text>
+                    </div>
+                    <div
+                        className="btn mt-4 flex flex-row justify-center"
+                        onClick={githubHandler}
+                    >
+                        <Image
+                            src="/icons/social/github.png"
+                            alt="Google Logo"
+                            width={30}
+                            height={30}
+                            className="justify-self-start"
+                        />
+                        <text className="ml-4 place-self-center justify-self-center align-middle text-base">
+                            Sign in with Github
+                        </text>
+                    </div>
                 </div>
             </div>
         </div>

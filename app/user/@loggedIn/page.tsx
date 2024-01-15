@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import "@/loader";
 import { useCookies } from "next-client-cookies";
 import { useRouter } from "next/navigation";
 import { client } from "@passwordless-id/webauthn";
