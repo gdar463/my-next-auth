@@ -1,3 +1,11 @@
+//
+//  my-next-auth  Copyright (C) 2024  gdar463
+//  This program comes with ABSOLUTELY NO WARRANTY.
+//  This is free software, and you are welcome to redistribute it
+//  under certain conditions.
+//  For everything check the LICENSE file bundled with the projcet
+//
+
 import nextBase64 from "next-base64";
 import { NextRequest, NextResponse } from "next/server";
 

@@ -1,0 +1,6 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="notice" value="&amp;#36;project  Copyright (C) &amp;#36;originalComment.match(&quot;Copyright \(c\) (\d+)&quot;, 1, &quot;-&quot;)&amp;#36;today.year  gdar463&#10;This program comes with ABSOLUTELY NO WARRANTY.&#10;This is free software, and you are welcome to redistribute it&#10;under certain conditions.&#10;For everything check the LICENSE file bundled with the projcet" />
+    <option name="myName" value="GPL-3.0" />
+  </copyright>
+</component>

@@ -1,9 +1,19 @@
+//
+//  my-next-auth  Copyright (C) 2024  gdar463
+//  This program comes with ABSOLUTELY NO WARRANTY.
+//  This is free software, and you are welcome to redistribute it
+//  under certain conditions.
+//  For everything check the LICENSE file bundled with the projcet
+//
+
 import { NextRequest, NextResponse } from "next/server";
 import * as jwt from "jsonwebtoken";
 import prisma from "@/db";
 import nextBase64 from "next-base64";
 
 let githubJwt = null;
+
+//TODO: Change this to be called by page redirected from github
 
 export async function GET(request: NextRequest) {
     if (
@@ -60,7 +70,7 @@ export async function GET(request: NextRequest) {
     }
     const socialFromDB = await prisma.social.findUnique({
         where: {
-            githubId: id
+            githubId: id,
         },
     });
     if (socialFromDB === null) {

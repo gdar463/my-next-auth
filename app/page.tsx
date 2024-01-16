@@ -1,3 +1,11 @@
+//
+//  my-next-auth  Copyright (C) 2024  gdar463
+//  This program comes with ABSOLUTELY NO WARRANTY.
+//  This is free software, and you are welcome to redistribute it
+//  under certain conditions.
+//  For everything check the LICENSE file bundled with the projcet
+//
+
 import Link from "next/link";
 
 export default function Home() {

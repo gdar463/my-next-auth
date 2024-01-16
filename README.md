@@ -15,5 +15,5 @@ My shot at an auth platform with next
 - [ ] Discord (next)
 - [x] Github
 - [ ] Gitlab (next next)
-- [ ] Microsoft (next next next)
-- [ ] Facebook (dead last)
+- [ ] Microsoft (maybe) (next next next)
+- [ ] Facebook (maybe) (dead last)

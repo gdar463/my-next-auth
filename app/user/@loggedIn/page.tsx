@@ -1,3 +1,11 @@
+//
+//  my-next-auth  Copyright (C) 2024  gdar463
+//  This program comes with ABSOLUTELY NO WARRANTY.
+//  This is free software, and you are welcome to redistribute it
+//  under certain conditions.
+//  For everything check the LICENSE file bundled with the projcet
+//
+
 "use client";
 import { useEffect, useState } from "react";
 import { useCookies } from "next-client-cookies";
@@ -13,10 +21,10 @@ export default function Home() {
     const router = useRouter();
 
     useEffect(() => {
-        getUser();
+        getUser().then();
         setPasskeySupport(client.isAvailable());
         if (client.isAvailable()) {
-            getChallenge();
+            getChallenge().then();
         }
     }, []);
 
@@ -65,6 +73,7 @@ export default function Home() {
             alert("Ricarica la pagina e riprova");
             return;
         }
+        // noinspection TypeScriptValidateJSTypes
         const registration = await client.register(email, challenge, {
             authenticatorType: "auto",
             userVerification: "required",
