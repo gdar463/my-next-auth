@@ -8,12 +8,14 @@
 
 "use client";
 
-import { client } from "@passwordless-id/webauthn";
 import { useRouter } from "next/navigation";
+import { client } from "@passwordless-id/webauthn";
 import { useEffect, useState } from "react";
+import nextBase64 from "next-base64";
 import Image from "next/image";
 
-export default function Login() {
+export default function Register() {
+    // noinspection DuplicatedCode
     const [passkeySupport, setPasskeySupport] = useState(false);
     const [challenge, setChallenge] = useState("");
     const router = useRouter();
@@ -21,7 +23,7 @@ export default function Login() {
     useEffect(() => {
         setPasskeySupport(client.isAvailable());
         if (client.isAvailable()) {
-            getChallenge();
+            getChallenge().then();
         }
     }, []);
 
@@ -35,7 +37,7 @@ export default function Login() {
         );
     };
 
-    const handler = async (event) => {
+    const credsHandler = async (event) => {
         event.preventDefault();
 
         const request = {
@@ -43,7 +45,7 @@ export default function Login() {
             password: event.target.password.value,
         };
 
-        const response = await fetch("/api/auth/login", {
+        const response = await fetch("/api/auth/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -56,11 +58,8 @@ export default function Login() {
             case 200:
                 router.push("/user");
                 break;
-            case 401:
-                alert("Credenziali Sbagliate");
-                break;
-            case 404:
-                alert("NON C'E' ACCOUNT CON QUESTA EMAIL");
+            case 409:
+                alert("ESISTE GIA' ACCOUNT CON QUESTO USERNAME");
                 break;
             case 500:
                 alert(
@@ -77,25 +76,68 @@ export default function Login() {
 
     const webauthnHandler = async (event) => {
         event.preventDefault();
-        const authentication = await client.authenticate([], challenge, {
-            authenticatorType: "auto",
-            userVerification: "required",
-            timeout: 120000,
+        const available = await fetch("/api/auth/passkey/register/available", {
+            method: "POST",
+            body: event.target.email.value,
         });
-        const response = await fetch("/api/auth/passkey/login", {
+        const availableStatus = available.status;
+        switch (availableStatus) {
+            case 200:
+                break;
+            case 409:
+                alert(
+                    "TU NON POTER CREARE PASSKEY COSI'. SE TU AVERE QUESTO ACCOUNT AGGIUNGI DA ACCOUNT",
+                );
+                return;
+            case 500:
+                alert(
+                    "ESSERCI PROBLEMI! CONTATTARE ASSISTENZA TECNICA VIA POSTA ALL'INDIRIZZO Longyearbyen 9170, Svalbard e Jan Mayen, Norvegia!",
+                );
+                return;
+            default:
+                alert(
+                    "ALLARME ALLARME ALLARME ALLARME ALLARME ALLARME ALLARME ALLARME ALLARME ALLARME ALLARME ALLARME ALLARME ALLARME ALLARME ALLARME ",
+                );
+                return;
+        }
+        if (
+            !challenge.match(
+                "[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}",
+            )
+        ) {
+            alert("Ricarica la pagina e riprova");
+            return;
+        }
+        // noinspection TypeScriptValidateJSTypes
+        const registration = await client.register(
+            event.target.email.value,
+            challenge,
+            {
+                authenticatorType: "auto",
+                userVerification: "required",
+                timeout: 120000,
+                userHandle: nextBase64
+                    .encode(
+                        Array.from(
+                            crypto.getRandomValues(new Int8Array(64)),
+                        ).join(""),
+                    )
+                    .replace("=", "")
+                    .replace("%3D", "")
+                    .substring(0, 64),
+            },
+        );
+        const response = await fetch("/api/auth/passkey/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(authentication),
+            body: JSON.stringify(registration),
         });
         const responseStatus = response.status;
         switch (responseStatus) {
             case 200:
                 router.push("/user");
-                break;
-            case 401:
-                alert("Passkey non valida (in qualche modo)");
                 break;
             case 404:
                 await getChallenge();
@@ -119,17 +161,32 @@ export default function Login() {
         }
     };
 
+    const googleHandler = async (event) => {
+        event.preventDefault();
+        router.push("/api/auth/social?provider=google");
+    };
+
     const githubHandler = async (event) => {
         event.preventDefault();
         router.push("/api/auth/social?provider=github");
     };
 
+    const gitlabHandler = async (event) => {
+        event.preventDefault();
+        router.push("/api/auth/social?provider=gitlab");
+    };
+
+    const discordHandler = async (event) => {
+        event.preventDefault();
+        router.push("/api/auth/social?provider=discord");
+    };
+
     return (
         <div className="flex h-screen">
             <div className="m-auto">
-                <h1 className="text-5xl font-extrabold">Login</h1>
+                <h1 className="text-5xl font-extrabold">Register</h1>
                 <hr className="my-6 w-full" />
-                <form className="form-control" onSubmit={handler}>
+                <form className="form-control" onSubmit={credsHandler}>
                     <text className="text-3xl font-semibold">
                         With a password
                     </text>
@@ -147,13 +204,13 @@ export default function Login() {
                         type="password"
                         id="password"
                         minLength={8}
-                        autoComplete="current-password"
+                        autoComplete="new-password"
                         required
                     />
                     <input
-                        className="btn mb-1 mt-7 text-base"
+                        className="btn mb-1 mt-7"
                         type="submit"
-                        value="Login"
+                        value="Register"
                     />
                 </form>
                 <div className={`${passkeySupport ? "" : "hidden"}`}>
@@ -162,10 +219,18 @@ export default function Login() {
                         Or you can use a passkey
                     </text>
                     <form className="form-control" onSubmit={webauthnHandler}>
+                        <label className="label mt-4">Email</label>
                         <input
-                            className="btn mt-6 text-base"
+                            className="input input-bordered"
+                            type="email"
+                            id="email"
+                            autoComplete="email webauthn"
+                            required
+                        />
+                        <input
+                            className="btn mt-7"
                             type="submit"
-                            value="Login"
+                            value="Register"
                         />
                     </form>
                 </div>
@@ -174,7 +239,10 @@ export default function Login() {
                     <text className="text-3xl font-semibold">
                         Or you social login
                     </text>
-                    <div className="btn mt-6 flex flex-row justify-center">
+                    <div
+                        className="btn mt-6 flex flex-row justify-center"
+                        onClick={googleHandler}
+                    >
                         <Image
                             src="/icons/social/google.png"
                             alt="Google Logo"
@@ -182,8 +250,8 @@ export default function Login() {
                             height={30}
                             className="justify-self-start"
                         />
-                        <text className="ml-4 place-self-center justify-self-center align-middle text-base">
-                            Sign in with Google
+                        <text className="place-self-center justify-self-center align-middle text-base">
+                            Sign up with Google
                         </text>
                     </div>
                     <div
@@ -192,13 +260,43 @@ export default function Login() {
                     >
                         <Image
                             src="/icons/social/github.png"
-                            alt="Google Logo"
+                            alt="Github Logo"
                             width={30}
                             height={30}
                             className="justify-self-start"
                         />
-                        <text className="ml-4 place-self-center justify-self-center align-middle text-base">
-                            Sign in with Github
+                        <text className="place-self-center justify-self-center align-middle text-base">
+                            Sign up with Github
+                        </text>
+                    </div>
+                    <div
+                        className="btn mt-4 flex flex-row justify-center"
+                        onClick={gitlabHandler}
+                    >
+                        <Image
+                            src="/icons/social/gitlab.png"
+                            alt="Gitlab Logo"
+                            width={30}
+                            height={30}
+                            className="justify-self-start"
+                        />
+                        <text className="place-self-center justify-self-center align-middle text-base">
+                            Sign up with Gitlab
+                        </text>
+                    </div>
+                    <div
+                        className="btn mt-4 flex flex-row justify-center"
+                        onClick={discordHandler}
+                    >
+                        <Image
+                            src="/icons/social/discord.png"
+                            alt="Discord Logo"
+                            width={30}
+                            height={30}
+                            className="justify-self-start"
+                        />
+                        <text className="place-self-center justify-self-center align-middle text-base">
+                            Sign up with Discord
                         </text>
                     </div>
                 </div>

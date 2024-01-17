@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
         },
     });
     if (emailFromDB != null) {
-        var response = new NextResponse("Email aready registered", {
+        const response = new NextResponse("Email aready registered", {
             status: 409,
         });
         return response;
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
         },
     });
     if (toDB === null) {
-        var response = new NextResponse("Unable to create user", {
+        const response = new NextResponse("Unable to create user", {
             status: 500,
         });
         return response;
@@ -49,11 +49,11 @@ export async function POST(request: NextRequest) {
             token: token,
         },
     });
-    var response = new NextResponse("User created successfully", {
+    const response = new NextResponse("User created successfully", {
         status: 200,
     });
     response.cookies.set("token", token, {
-        expires: new Date(Date.now() + 30 * 60 * 1000),
+        expires: new Date().getTime() + 30 * 60 * 1000,
     });
     return response;
 }

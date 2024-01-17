@@ -3,7 +3,7 @@
 //  This program comes with ABSOLUTELY NO WARRANTY.
 //  This is free software, and you are welcome to redistribute it
 //  under certain conditions.
-//  For everything check the LICENSE file bundled with the projcet
+//  For everything check the LICENSE file bundled with the project
 //
 
 import { NextRequest, NextResponse } from "next/server";
@@ -13,9 +13,19 @@ import nextBase64 from "next-base64";
 
 let githubJwt = null;
 
-//TODO: Change this to be called by page redirected from github
-
 export async function GET(request: NextRequest) {
+    const code = request.nextUrl.searchParams.get("code");
+    if (code === "" || code === undefined || code === null) {
+        return new NextResponse(null, {
+            status: 302,
+            headers: {
+                Location: new URL(
+                    "/?error=invalid-code",
+                    request.nextUrl.origin,
+                ).toString(),
+            },
+        });
+    }
     if (
         githubJwt === null ||
         jwt.decode(githubJwt, { json: true }).exp >=
@@ -30,7 +40,6 @@ export async function GET(request: NextRequest) {
             algorithm: "RS256",
         });
     }
-    const code = request.nextUrl.searchParams.get("code");
     const uatFromGithub = await fetch(
         encodeURI(
             `https://github.com/login/oauth/access_token?client_id=${process.env.GITHUB_CLIENT_ID}&client_secret=${process.env.GITHUB_CLIENT_SECRET}&code=${code}`,
@@ -38,18 +47,31 @@ export async function GET(request: NextRequest) {
         {
             method: "POST",
             headers: {
+                Accept: "application/json",
                 Authorization: `Bearer ${githubJwt}`,
             },
         },
     );
-    const uat = (await uatFromGithub.text())
-        .split("&")[0]
-        .replace("access_token=", "");
+    let uat: string;
+    try {
+        // noinspection JSUnresolvedReference
+        uat = (await uatFromGithub.json()).access_token;
+    } catch (e) {
+        return new NextResponse(null, {
+            status: 302,
+            headers: {
+                Location: new URL(
+                    "/?error=expired-code",
+                    request.nextUrl.origin,
+                ).toString(),
+            },
+        });
+    }
     const userFromGithub = await fetch("https://api.github.com/user", {
         method: "GET",
         headers: {
             "X-GitHub-Api-Version": "2022-11-28",
-            Accept: "application/vnd.github+json",
+            Accept: "application/json",
             Authorization: `Bearer ${uat}`,
         },
     });
@@ -68,7 +90,7 @@ export async function GET(request: NextRequest) {
             },
         });
     }
-    const socialFromDB = await prisma.social.findUnique({
+    const socialFromDB = await prisma.social.findFirst({
         where: {
             githubId: id,
         },
@@ -106,7 +128,7 @@ export async function GET(request: NextRequest) {
         },
     });
     response.cookies.set("token", token, {
-        expires: new Date(Date.now() + 30 * 60 * 1000),
+        expires: new Date().getTime() + 30 * 60 * 1000,
     });
     return response;
 }

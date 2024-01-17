@@ -1,7 +1,16 @@
 <component name="CopyrightManager">
   <settings default="GPL-3.0">
     <module2copyright>
-      <element module="Project Files" copyright="GPL-3.0" />
+      <element module="All" copyright="GPL-3.0" />
     </module2copyright>
+    <LanguageOptions name="CSS">
+      <option name="fileTypeOverride" value="3" />
+    </LanguageOptions>
+    <LanguageOptions name="TypeScript">
+      <option name="addBlankBefore" value="true" />
+    </LanguageOptions>
+    <LanguageOptions name="__TEMPLATE__">
+      <option name="block" value="false" />
+    </LanguageOptions>
   </settings>
 </component>

@@ -10,10 +10,10 @@ My shot at an auth platform with next
 
 ## Social login
 
-- [ ] Google (maybe)
-- [ ] Apple (maybe)
-- [ ] Discord (next)
+- [x] Google
+- [x] Discord
 - [x] Github
-- [ ] Gitlab (next next)
+- [x] Gitlab
 - [ ] Microsoft (maybe) (next next next)
 - [ ] Facebook (maybe) (dead last)
+- [ ] Apple (if god gives me the will to give them 100 euros every year till I die, then (maybe maybe))

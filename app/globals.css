@@ -24,6 +24,10 @@
     @apply bg-black text-white;
 }
 
+.loading-xl {
+    @apply w-16;
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         --foreground-rgb: 0, 0, 0;

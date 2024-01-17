@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
         status: 200,
     });
     response.cookies.set("token", token, {
-        expires: new Date(Date.now() + 30 * 60 * 1000),
+        expires: new Date().getTime() + 30 * 60 * 1000,
     });
     return response;
 }

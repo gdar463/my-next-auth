@@ -19,9 +19,12 @@ export async function POST(request: NextRequest) {
         },
     });
     if (fromDB === null) {
-        var response = new NextResponse("Couldn't find an account with email", {
-            status: 404,
-        });
+        const response = new NextResponse(
+            "Couldn't find an account with email",
+            {
+                status: 404,
+            },
+        );
         return response;
     }
     const result = await bcrypt.compare(json.password, fromDB.password);
@@ -40,15 +43,15 @@ export async function POST(request: NextRequest) {
                 token: token,
             },
         });
-        var response = new NextResponse("Logged in", {
+        const response = new NextResponse("Logged in", {
             status: 200,
         });
         response.cookies.set("token", token, {
-            expires: new Date(Date.now() + 60 * 60 * 1000),
+            expires: new Date().getTime() + 30 * 60 * 1000,
         });
         return response;
     } else {
-        var response = new NextResponse("Incorrect Credentials", {
+        const response = new NextResponse("Incorrect Credentials", {
             status: 401,
         });
         return response;
