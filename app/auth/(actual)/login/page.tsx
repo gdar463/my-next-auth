@@ -17,6 +17,7 @@ export default function Login() {
     // noinspection DuplicatedCode
     const [passkeySupport, setPasskeySupport] = useState(false);
     const [challenge, setChallenge] = useState("");
+    const [currentTab, setCurrentTab] = useState(0);
     const router = useRouter();
 
     useEffect(() => {
@@ -121,133 +122,139 @@ export default function Login() {
         }
     };
 
-    const googleHandler = async (event) => {
-        event.preventDefault();
-        router.push("/api/auth/social?provider=google");
-    };
-
-    const githubHandler = async (event) => {
-        event.preventDefault();
-        router.push("/api/auth/social?provider=github");
-    };
-
-    const gitlabHandler = async (event) => {
-        event.preventDefault();
-        router.push("/api/auth/social?provider=gitlab");
-    };
-
-    const discordHandler = async (event) => {
-        event.preventDefault();
-        router.push("/api/auth/social?provider=discord");
+    const socialHandler = async (provider: string) => {
+        router.push(`/api/auth/social?provider=${provider}`);
     };
 
     return (
-        <div className="flex h-screen">
+        <div className="flex h-screen min-h-[40%]">
             <div className="m-auto">
-                <h1 className="text-5xl font-extrabold">Login</h1>
+                <h1 className="ml-1 text-5xl font-extrabold">Login</h1>
                 <hr className="my-6 w-full" />
-                <form className="form-control" onSubmit={handler}>
-                    <text className="text-3xl font-semibold">
-                        With a password
-                    </text>
-                    <label className="label mt-4">Email</label>
-                    <input
-                        className="input input-bordered"
-                        type="email"
-                        id="email"
-                        autoComplete="email"
-                        required
-                    />
-                    <label className="label mt-1">Password</label>
-                    <input
-                        className="input input-bordered"
-                        type="password"
-                        id="password"
-                        minLength={8}
-                        autoComplete="current-password"
-                        required
-                    />
-                    <input
-                        className="btn mb-1 mt-7 text-base"
-                        type="submit"
-                        value="Login"
-                    />
-                </form>
-                <div className={`${passkeySupport ? "" : "hidden"}`}>
-                    <hr className="my-6 w-full" />
-                    <text className="text-3xl font-semibold">
-                        Or you can use a passkey
-                    </text>
-                    <form className="form-control" onSubmit={webauthnHandler}>
+                <div role="tablist" className="tabs tabs-bordered">
+                    <a
+                        role="tab"
+                        className={`tab ${
+                            currentTab === 0
+                                ? "tab-active font-[600]"
+                                : "text-gray-400"
+                        } ml-1 text-lg`}
+                        onClick={() => setCurrentTab(0)}
+                    >
+                        Credentials
+                    </a>
+                    <a
+                        role="tab"
+                        className={`tab ${
+                            currentTab === 1
+                                ? "tab-active font-[600]"
+                                : "text-gray-400"
+                        } text-lg ${passkeySupport ? "" : "hidden"}`}
+                        onClick={() => setCurrentTab(1)}
+                    >
+                        Passkey
+                    </a>
+                    <a
+                        role="tab"
+                        className={`tab ${
+                            currentTab === 2
+                                ? "tab-active font-[600]"
+                                : "text-gray-400"
+                        } text-lg`}
+                        onClick={() => setCurrentTab(2)}
+                    >
+                        Social
+                    </a>
+                </div>
+                <div className={`${currentTab != 0 ? "hidden" : ""}`}>
+                    <form className="form-control" onSubmit={handler}>
+                        <label className="label mt-4">Email</label>
                         <input
-                            className="btn mt-6 text-base"
+                            className="input input-bordered"
+                            type="email"
+                            id="email"
+                            autoComplete="email"
+                            required
+                        />
+                        <label className="label mt-1">Password</label>
+                        <input
+                            className="input input-bordered"
+                            type="password"
+                            id="password"
+                            minLength={8}
+                            autoComplete="current-password"
+                            required
+                        />
+                        <input
+                            className="btn mb-1 mt-7 text-base"
                             type="submit"
                             value="Login"
                         />
                     </form>
                 </div>
-                <div>
-                    <hr className="my-6 w-full" />
-                    <text className="text-3xl font-semibold">
-                        Or you social login
-                    </text>
+                <div className={`${currentTab != 1 ? "hidden" : ""}`}>
+                    <form className="form-control" onSubmit={webauthnHandler}>
+                        <input
+                            className="btn mt-7 text-base"
+                            type="submit"
+                            value="Login with a passkey"
+                        />
+                    </form>
+                </div>
+                <div className={`${currentTab != 2 ? "hidden" : ""}`}>
                     <div
-                        className="btn mt-6 flex flex-row justify-center"
-                        onClick={googleHandler}
+                        className="btn mt-7 flex items-center justify-center"
+                        onClick={() => socialHandler("google")}
                     >
                         <Image
                             src="/icons/social/google.png"
                             alt="Google Logo"
                             width={30}
                             height={30}
-                            className="justify-self-start"
                         />
-                        <text className="place-self-center justify-self-center align-middle text-base">
+                        <text className="flex-grow align-middle text-base">
                             Sign in with Google
                         </text>
                     </div>
                     <div
-                        className="btn mt-4 flex flex-row justify-center"
-                        onClick={githubHandler}
+                        className="btn mt-4 flex items-center justify-center"
+                        onClick={() => socialHandler("github")}
                     >
                         <Image
                             src="/icons/social/github.png"
                             alt="Github Logo"
                             width={30}
                             height={30}
-                            className="justify-self-start"
                         />
-                        <text className="place-self-center justify-self-center align-middle text-base">
+                        <text className="flex-grow align-middle text-base">
                             Sign in with Github
                         </text>
                     </div>
                     <div
-                        className="btn mt-4 flex flex-row justify-center"
-                        onClick={gitlabHandler}
+                        className="btn mt-4 flex items-center justify-center"
+                        onClick={() => socialHandler("gitlab")}
                     >
                         <Image
                             src="/icons/social/gitlab.png"
                             alt="Gitlab Logo"
                             width={30}
                             height={30}
-                            className="justify-self-start"
                         />
-                        <text className="place-self-center justify-self-center align-middle text-base">
+                        <text className="flex-grow align-middle text-base">
                             Sign in with Gitlab
                         </text>
                     </div>
                     <div
-                        className="btn mt-4 flex flex-row justify-center"
-                        onClick={discordHandler}
+                        className="btn mt-4 flex items-center justify-center"
+                        onClick={() => socialHandler("discord")}
                     >
                         <Image
                             src="/icons/social/discord.png"
                             alt="Discord Logo"
                             width={30}
                             height={30}
-                            className="justify-self-start"
                         />
-                        <text className="place-self-center justify-self-center align-middle text-base">
+                        <text className="flex-grow align-middle text-base">
                             Sign in with Discord
                         </text>
                     </div>
